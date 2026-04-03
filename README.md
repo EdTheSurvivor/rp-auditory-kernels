@@ -39,7 +39,7 @@ It is a lot harder to find (1) the $N_\mathrm{g}$ unique kernels (this set of ke
 #### How to find the encoding?
 First assume that we already have the unique kernels (the dictionary) available. This can be, for example, because we selected a standard set of kernels. Let's have a look at how to find the encoding. 
 
-For finding the encoding we use an algorithm called *matching pursuit* (MP). You can read about it on the [wikipedia](https://en.wikipedia.org/wiki/Matching_pursuit) or in the [original paper](https://doi.org/10.1109/78.258082) from 1993 ([pdf](reading_materials/Mallat1993 - Matching Pursuits with Time Frequency Dictionaries.pdf)). Usually MP is formulated somewhat different (without cross-correlations), but the  basic idea is as follows:
+For finding the encoding we use an algorithm called *matching pursuit* (MP). You can read about it on the [wikipedia](https://en.wikipedia.org/wiki/Matching_pursuit) or in the [original paper](https://doi.org/10.1109/78.258082) from 1993 ([pdf](reading_material/Mallat1993 - Matching Pursuits with Time Frequency Dictionaries.pdf)). Usually MP is formulated somewhat different (without cross-correlations), but the  basic idea is as follows:
 
 - Initialise the residual signal as $s^{[1]}_\mathrm{res}(t) = s(t)$ (the residual signal is effectively the error $\varepsilon(t)$) and set $k=0$. 
 - Repeat the following until some stopping condition is met
@@ -51,7 +51,7 @@ For finding the encoding we use an algorithm called *matching pursuit* (MP). You
 	- $k \leftarrow k + 1$
 
 #### How to find the dictionary elements (auditory kernels)?
-For finding the dictionary elements we use the approach outlined in the [paper of Smith and Lewicki](https://doi.org/10.1038/nature04485) ([pdf](reading_materials/Smith2006 - Efficient Auditory Coding.pdf)). The basic idea is quite simple:
+For finding the dictionary elements we use the approach outlined in the [paper of Smith and Lewicki](https://doi.org/10.1038/nature04485) ([pdf](reading_material/Smith2006 - Efficient Auditory Coding.pdf)). The basic idea is quite simple:
 
 - Select the number of dictionary elements $N_\mathrm{g}$ you want to use
 - Initialise them as random noise of 100 samples in length
