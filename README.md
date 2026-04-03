@@ -113,7 +113,7 @@ Now let's have a look at some reading per research question.
 
 - [Prat2017](reading_material/Prat2017 - An Annotated Dataset of Egyptian Fruit Bat Vocalizations across Varying Contexts and during Vocal Ontogeny.pdf) is a open-source partially labeled dataset of bat-social calls in different conditions (mother-pup pairs and bigger groups)
 - [Salles2019](reading_material/Salles2019 - Auditory Communication Processing in Bats_ What We Know and Where to Go..pdf)
-- You should definitely have a look at the [bachelor thesis](https://repository.tudelft.nl/record/uuid:f7d76b24-ee79-46ea-a85d-78fcbdfbafff) on bat echolocation of Aleksandra last year. This paper is accepted for publication at ICASSP 2026. The paper should become available soon, I will add it here when that happens. This is the [draft of the poster for the presentation](reading_materials/poster_bat_paper_draft.pdf)
+- You should definitely have a look at the [bachelor thesis](https://repository.tudelft.nl/record/uuid:f7d76b24-ee79-46ea-a85d-78fcbdfbafff) on bat echolocation of Aleksandra last year. This paper is accepted for publication at ICASSP 2026. The paper should become available soon, I will add it here when that happens. This is the [draft of the poster for the presentation](reading_material/poster_bat_paper_draft.pdf)
 
 ## Getting started with the code
 
