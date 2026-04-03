@@ -39,7 +39,7 @@ It is a lot harder to find (1) the $N_\mathrm{g}$ unique kernels (this set of ke
 #### How to find the encoding?
 First assume that we already have the unique kernels (the dictionary) available. This can be, for example, because we selected a standard set of kernels. Let's have a look at how to find the encoding. 
 
-For finding the encoding we use an algorithm called *matching pursuit* (MP). You can read about it on the [wikipedia](https://en.wikipedia.org/wiki/Matching_pursuit) or in the [original paper](https://doi.org/10.1109/78.258082) from 1993. Usually MP is formulated somewhat different (without cross-correlations), but the  basic idea is as follows:
+For finding the encoding we use an algorithm called *matching pursuit* (MP). You can read about it on the [wikipedia](https://en.wikipedia.org/wiki/Matching_pursuit) or in the [original paper](https://doi.org/10.1109/78.258082) from 1993 ([pdf](reading_materials/Mallat1993 - Matching Pursuits with Time Frequency Dictionaries.pdf)). Usually MP is formulated somewhat different (without cross-correlations), but the  basic idea is as follows:
 
 - Initialise the residual signal as $s^{[1]}_\mathrm{res}(t) = s(t)$ (the residual signal is effectively the error $\varepsilon(t)$) and set $k=0$. 
 - Repeat the following until some stopping condition is met
@@ -51,7 +51,7 @@ For finding the encoding we use an algorithm called *matching pursuit* (MP). You
 	- $k \leftarrow k + 1$
 
 #### How to find the dictionary elements (auditory kernels)?
-For finding the dictionary elements we use the approach outlined in the [paper of Smith and Lewicki](https://doi.org/10.1038/nature04485). The basic idea is quite simple:
+For finding the dictionary elements we use the approach outlined in the [paper of Smith and Lewicki](https://doi.org/10.1038/nature04485) ([pdf](reading_materials/Smith2006 - Efficient Auditory Coding.pdf)). The basic idea is quite simple:
 
 - Select the number of dictionary elements $N_\mathrm{g}$ you want to use
 - Initialise them as random noise of 100 samples in length
@@ -69,14 +69,51 @@ The remainder of this README focuses on the reading-material and on how to use t
 ## Reading material
 The reading material can be found in the folder `reading material`. I  recommend everyone to read/look at:
 
-	-  [The slides we used during our first meeting](reading_material/slides1_intro_to_project_slides.pdf),
-	- [Lewicki2010](reading_material/Lewicki2010 - A Signal Take on Speech.pdf). Very easy to read.
-	- [Smith2006](reading_material/Smith2006 - Efficient Auditory Coding.pdf) (This paper is more technical, but it is the paper which is the center of this research project so study it carefully!)
+-  [The slides we used during our first meeting](reading_material/slides1_intro_to_project_slides.pdf),	
+- [Lewicki2010](reading_material/Lewicki2010 - A Signal Take on Speech.pdf) (very easy to read),
+- [Smith2006](reading_material/Smith2006 - Efficient Auditory Coding.pdf) (This paper is more technical, but it is the paper which is the center of this research project so study it carefully!)
+- [A youtube talk by Lewicki](https://www.youtube.com/watch?v=UN_j04vyvS0&list=PL_wSRP1hDkU34HgXGFBTiC5kv_s0KsuTs&index=6)
+- Optionally you can also go through [Ming2009](reading_material/Ming2009 - Efficient Coding in Human Auditory Perception.pdf)
+- You might also want to look up material on matching pursuit. Probably there is a lot of good stuff on Youtube. Anyway, for your reference, [Mallat1993](reading_material/Mallat1993 - Matching Pursuits with Time Frequency Dictionaries.pdf) is the original paper.
+- You can optionally have a look at both posters. One of them is from a research project on bat echolocation ([poster](reading_material/poster_bat_paper_draft.pdf)), and the other is from a presentation Jorge and I gave a while ago ([poster](reading_material/poster_dag_vd_fonetiek.pdf)).
 
-	
-You might first want to have a look at the [slides we used during our first meeting](reading_material/slides1_intro_to_project_slides.pdf).
+If you are interested in the efficient coding hypothesis, you can read:
 
+- [Barlow1961](reading_material/Barlow1961 - Possible Principles Underlying the Transformations of Sensory Messages.pdf) (the original paper)
+- [Barlow2001](reading_material/Barlow2001 - Redundancy Reduction Revisited.pdf) (Barlow reflecting back on the original paper) 
+- [Loh2014](reading_material/Loh2014 - Efficient Coding Hypothesis and an Introduction to Information Theory.pdf) (A nice introduction, this paper might be the best starting point out of these three?)
 
+If you are interested in a nice (but very extensive!) overview of human speech recognition:
+
+- [Allen2005](reading_material/Allen2005 - Articulation and Intelligibility.pdf)
+
+Now let's have a look at some reading per research question.
+
+**RQ1:** (non-linear cochlear signal processing)
+
+- [Thoret2023](reading_material/Thoret2023 - Hearing As Adaptive Cascaded Envelope Interpolation.pdf)
+
+**RQ2:** (number of kernels)
+
+ - No specific extra reading
+
+**RQ3:** (Reverberation)
+
+- Have a look at the "room impulse response", you should be able to easily find a lot about this. Also look at the mirror-image source method.
+- You might be interested in [Mesgarani2014](reading_material/Mesgarani2014 - Mechanisms of Noise Robust Representation of Speech in Primary Auditory Cortex.pdf), which is on how the auditory system deals with noise/reverb.
+- You might be interested in the [research project](https://repository.tudelft.nl/record/uuid:4cfcac57-22ec-4ecc-b133-bfa5db2babc3) by Baturalp of last year.
+
+ **RQ4:** (speech production)
+ 
+ - Search for some materials on phonetics/speech production.
+- [Ladefoged2012](reading_material/Ladefoged2012 - Vowels and Consonants.pdf) is an introductory textbook on phonetics. You might be able to find it in the library, otherwise I have a paperback version you can use if you are interested.
+- You might also be interested in [Miller1955](reading_material/Miller1955 - An Analysis of Perceptual Confusions among Some English Consonants.pdf). I found it a very cool paper.
+
+**RQ5:** (Social calls of bats)
+
+- [Prat2017](reading_material/Prat2017 - An Annotated Dataset of Egyptian Fruit Bat Vocalizations across Varying Contexts and during Vocal Ontogeny.pdf) is a open-source partially labeled dataset of bat-social calls in different conditions (mother-pup pairs and bigger groups)
+- [Salles2019](reading_material/Salles2019 - Auditory Communication Processing in Bats_ What We Know and Where to Go..pdf)
+- You should definitely have a look at the [bachelor thesis](https://repository.tudelft.nl/record/uuid:f7d76b24-ee79-46ea-a85d-78fcbdfbafff) on bat echolocation of Aleksandra last year. This paper is accepted for publication at ICASSP 2026. The paper should become available soon, I will add it here when that happens. This is the [draft of the poster for the presentation](reading_materials/poster_bat_paper_draft.pdf)
 
 ## Getting started with the code
 
