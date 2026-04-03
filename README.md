@@ -1,5 +1,5 @@
 # Auditory Kernels
-This repository has some code for training the kernels (in Julia) and for computing the encodings (Python/Julia). There is also a Jupyter-notebook which hopefully helps get an idea of the Python code, and what it means to encode and decode the speech signals.
+This repository has some code for training the kernels (in Julia) and for computing the encodings (Python/Julia). There is also a Jupyter-notebook which hopefully helps get an idea of the Python code, and what it means to encode and decode the speech signals. Additionally, the reading materials I send previously are also added. 
 
 ## Introduction
 We have a speech signal $s(t)$. This signal can, for example, be recorded using a microphone. The main idea is that we can decompose $s(t)$ based on a small number of "building blocks". These building-blocks are referred to as *auditory kernels*, with as symbol $\phi_i(t)$. There are $N_\mathrm{g}$ unique auditory kernels $\phi_{i}$, $i \in \{1, 2, \ldots, N_\mathrm{g}\}$.  We usually take $N_\mathrm{g}=32$. 
@@ -62,7 +62,21 @@ For finding the dictionary elements we use the approach outlined in the [paper o
 	- normalise each kernel to have a norm of 1 (i.e. $\phi_i \leftarrow \phi_i / ||\phi_i||$)
 	
 #### This repository
-In this repository there is some code for learning the kernels (in Julia) and for performing matching pursuit (Python/Julia). There is also a variant of matching pursuit which we called short-time matching pursuit. The reason for this is that matching pursuit becomes very slow as the length of $s(t)$ increases due to the convolutions (or cross-correlations) involved. The remainder of this README focuses on how to use this code. (And there might still be bugs!!!! So let me know if you find any!)
+In this repository there is some code for learning the kernels (in Julia) and for performing matching pursuit (Python/Julia). There is also a variant of matching pursuit which we called short-time matching pursuit. The reason for this is that matching pursuit becomes very slow as the length of $s(t)$ increases due to the convolutions (or cross-correlations) involved. 
+
+The remainder of this README focuses on the reading-material and on how to use the code in the repo. (And there might still be bugs!!!! So let me know if you find any!)
+
+## Reading material
+The reading material can be found in the folder `reading material`. I  recommend everyone to read/look at:
+
+	-  [The slides we used during our first meeting](reading_material/slides1_intro_to_project_slides.pdf),
+	- [Lewicki2010](reading_material/Lewicki2010 - A Signal Take on Speech.pdf). Very easy to read.
+	- [Smith2006](reading_material/Smith2006 - Efficient Auditory Coding.pdf) (This paper is more technical, but it is the paper which is the center of this research project so study it carefully!)
+
+	
+You might first want to have a look at the [slides we used during our first meeting](reading_material/slides1_intro_to_project_slides.pdf).
+
+
 
 ## Getting started with the code
 
