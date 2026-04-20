@@ -100,6 +100,10 @@ Now let's have a look at some reading per research question.
 **RQ3:** (Reverberation)
 
 - Have a look at the "room impulse response", you should be able to easily find a lot about this. Also look at the mirror-image source method.
+	- For this, you can have a look at the 4th edition  *Room Acoustics* by Kuttruff (2009).
+	-  You can also play around a bit with the Room Impulse Response (RIR) generator by Habets. This is a fairly flexible implementation of the mirror-image source method. See [python implementation](https://rir-generator.readthedocs.io/en/latest/index.html). It also has a pretty complete [report](https://github.com/ehabets/RIR-Generator/blob/master/rir_generator.pdf) which you can go through. 
+	- Do note that other methods exist, e.g. from Pyroomacoustics. You can also find datasets of measured room impulse responses and apply them to the speech signal
+	- given a clean speech signal $s(t)$ and a room impulse response $h(t)$ (measuring the room impulse response from the speaker to the microphone), the received signal is $y(t) = (s*h)(t)$, with $*$ the convolution operator. 
 - You might be interested in [Mesgarani2014](reading_material/Mesgarani2014 - Mechanisms of Noise Robust Representation of Speech in Primary Auditory Cortex.pdf), which is on how the auditory system deals with noise/reverb.
 - You might be interested in the [research project](https://repository.tudelft.nl/record/uuid:4cfcac57-22ec-4ecc-b133-bfa5db2babc3) by Baturalp of last year.
 
