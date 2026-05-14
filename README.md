@@ -2,6 +2,8 @@
 This repository has some code for training the kernels (in Julia) and for computing the encodings (Python/Julia). There is also a Jupyter-notebook which hopefully helps get an idea of the Python code, and what it means to encode and decode the speech signals. Additionally, the reading materials I send previously are also added. 
 
 ## Introduction
+Note: GitLab does not always render the mathematical typesetting properly :( It does work well in the Remarkable markdown editor....
+
 We have a speech signal $s(t)$. This signal can, for example, be recorded using a microphone. The main idea is that we can decompose $s(t)$ based on a small number of "building blocks". These building-blocks are referred to as *auditory kernels*, with as symbol $\phi_i(t)$. There are $N_\mathrm{g}$ unique auditory kernels $\phi_{i}$, $i \in \{1, 2, \ldots, N_\mathrm{g}\}$.  We usually take $N_\mathrm{g}=32$. 
 
 When the signal is decomposed into these auditory kernels, we are allowed to (1) reuse kernels, (2) shift kernels in time by $\tau\in\mathbb{R}$ seconds, and (3) scale the kernels by $\alpha\in\mathbb{R}$.  In this way, we can express the speech signal as

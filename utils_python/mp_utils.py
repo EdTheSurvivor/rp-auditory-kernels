@@ -611,7 +611,7 @@ def crop_encoded_waveform(encoded_waveform, crop_indx=None, crop_amp=None):
     return encoded_waveform
 
 
-def plot_encoding(x, sr, encoded_waveform, time_range = None, min_abs_amplitude = 0.001, x_reconstructed = None, show = True, dictionary=None, N_highlights=0, poster=False):
+def plot_encoding(x, sr, encoded_waveform, time_range = None, min_abs_amplitude = 0.001, x_reconstructed = None, show = True, dictionary=None, N_highlights=0, poster=False, spectrogram=False):
     """
     Plot waveform and encoding scatterplot.
 
@@ -626,6 +626,7 @@ def plot_encoding(x, sr, encoded_waveform, time_range = None, min_abs_amplitude 
         dictionary: you can supply the dictionary to order the kernels per centroid instead of number
         N_highlights: you can highlight a few kernels in particular
         poster: True/False, basically increases the size of the plot
+        spectrogram: True/False, you can add a spectrogram of the original waveform 
     """
     # Time axis for full signal
     time_axis = np.arange(len(x)) / sr
@@ -663,21 +664,25 @@ def plot_encoding(x, sr, encoded_waveform, time_range = None, min_abs_amplitude 
         scatter_data.append((i, 0, -1000)) # atom i, amplitude 0, time at -1000
 
     # ---- Set up the plots ---
+    if spectrogram:
+        n_subplot = 3
+    else:
+        n_subplot = 2
     if poster:
-        fig, axs = plt.subplots(2, 1, figsize=(15, 7.5), sharex=True)
+        fig, axs = plt.subplots(n_subplot, 1, figsize=(15, 7.5), sharex=True)
         label_fontsize = 24
         tick_fontsize = 20
         title_fontsize = 28
         legend_fontsize = 18
     else: # two-col paper
-        fig, axs = plt.subplots(2, 1, figsize=(3.5, 2.0), sharex=True)  # width ~1 column
+        fig, axs = plt.subplots(n_subplot, 1, figsize=(3.5, 2.0), sharex=True)  # width ~1 column
         label_fontsize = 10
         tick_fontsize = 8
         title_fontsize = 12
         legend_fontsize = 8        
         
     # --- Plot 1: Waveform --
-    # (1) Add some highlights. These are not labelled but show contribution of individual kernels.
+    # (1) Collect some highlights (indiviudal kernels) if specified by user. 
     highlights=[]
     if N_highlights>0: 
         # Sort by absolute amplitude (descending)
@@ -705,7 +710,7 @@ def plot_encoding(x, sr, encoded_waveform, time_range = None, min_abs_amplitude 
         except:
             print("Warning in mp_utils.plot_encoding. The code does not yet support cutting off the encoding")
       
-    # (4) Add the plot of the highlights (highlight = (dic_elem, amp, sample)
+    # (4) Add the plot of the highlights (highlight = (dic_elem, amp, sample))
     for highlight in highlights:
         if dictionary:
             kernel_ax = highlight[1]*dictionary[highlight[0]].kernel
@@ -769,17 +774,22 @@ def plot_encoding(x, sr, encoded_waveform, time_range = None, min_abs_amplitude 
             axs[1].set_ylabel("Auditory kernel #", fontsize=label_fontsize)
             axs[1].set_yticks(list(unique_atoms.values()))
             axs[1].set_yticklabels(list(unique_atoms.keys()))
-
-        
-        #axs[1].set_title("Encoding Events Scatterplot")
     else:
         axs[1].text(0.5, 0.5, "No events in selected range", ha='center', va='center')
-        #axs[1].set_title("Encoding Events Scatterplot")
 
     axs[1].set_xlim(t_start_ms, t_end_ms)
     axs[1].set_xlabel("Time (ms)", fontsize=label_fontsize)
-    plt.tight_layout()
     
+    if spectrogram:
+        f, t, Sxx = signal.spectrogram(x, sr) # x_reconstructed or x
+        axs[2].pcolormesh(t*1000, f, 10 * np.log10(Sxx), shading='gouraud')
+        axs[2].set_yscale('symlog')
+        axs[2].set_ylabel('Frequency [Hz]', fontsize=label_fontsize)
+        axs[2].set_xlabel('Time [ms]', fontsize=label_fontsize)
+        axs[2].set_ylim(50, sr/2)
+    
+    plt.tight_layout()
+            
     if show:
         plt.show()
 
