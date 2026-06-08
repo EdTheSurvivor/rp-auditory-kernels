@@ -12,7 +12,7 @@ from os.path import join, abspath, exists
 import emd
 
 
-def get_FIR(Fs = 16000, filter_order = 64, cutoff_freqs = [100, 6000]):
+def get_FIR(Fs = 16000, filter_order = 64, cutoff_freqs = [20, 7000]):
     # Define FIR filter parameters 
     #filter_order = 64
     #cutoff_freqs = [100, 6000]  # Hz
@@ -27,7 +27,7 @@ def get_FIR(Fs = 16000, filter_order = 64, cutoff_freqs = [100, 6000]):
 
 # Function to apply FIR filter
 def apply_fir_filter(signal_data, fir_coeffs):
-    return signal.lfilter(fir_coeffs, 1.0, signal_data)
+    return signal.filtfilt(fir_coeffs, 1.0, signal_data)
 
 
 def spectral_centroid(w, h):
@@ -81,6 +81,45 @@ def spectral_entropy(h, normalise=True):
     return entropy
 
 
+def peak_frequency(w, h):
+    power = np.abs(h)**2
+    peak_idx = np.argmax(power)
+    peak_mag = power[peak_idx]
+    return w[peak_idx]
+    
+    
+def bandwidth_3db(w, h, method='last_crossing'):
+    # method: take first time -3dB is crossed or last time (`last_crossing` vs `first_crossing`)
+    #
+    # Returns: bandwidth_3db, center_frequency (center of bandwidth), peak_frequency (frequency with max power)
+    power = np.abs(h)**2
+    peak_idx = np.argmax(power)
+    peak_mag = power[peak_idx]
+    threshold = peak_mag / 2    # -3 dB point
+    
+    if method == "first_crossing":
+        # left crossing
+        left = peak_idx
+        while left > 0 and power[left] >= threshold:
+            left -= 1
+
+        # right crossing
+        right = peak_idx
+        while right < len(power)-1 and power[right] >= threshold:
+            right += 1
+    elif method == "last_crossing":
+        indices = np.where(power >= threshold)[0] 
+        left = indices[0]
+        right = indices[-1]
+    else:
+        raise ValueError(f"Invalid value specified for method ({method}). Use 'last_crossing' or 'first_crossing'")
+    
+    bandwidth_3db = w[right] - w[left]
+    center_frequency = (w[right] + w[left])/2  # Note that this is only a particular definition!!!!! peak-frequency is a vague term
+    peak_frequency = w[peak_idx]
+    return bandwidth_3db, center_frequency, peak_frequency
+    
+
 def plot_filter_params(w, h, spectral_spread, centroid, filter_coeffs, results):
     mag_db = 20*np.log10(abs(h))
     mag_3db = np.max(mag_db) - 3
@@ -95,7 +134,7 @@ def plot_filter_params(w, h, spectral_spread, centroid, filter_coeffs, results):
     axes[0].axvline(centroid, color="green", linestyle="--", label=f"Center = {centroid:.1f} Hz")
     axes[0].axhline(mag_3db, color="black", linestyle="--", label="-3dB Level")
     # Labels & title
-    axes[0].set_ylim([-20, 15])
+    axes[0].set_ylim([-20, 20])
     axes[0].set_xlim([0, 8000])
     axes[0].set_xlabel("Frequency (Hz)")
     axes[0].set_ylabel("Magnitude (dB)")
@@ -106,7 +145,6 @@ def plot_filter_params(w, h, spectral_spread, centroid, filter_coeffs, results):
     feature_text = "\n".join([f"{key.capitalize()}: {value:.2f}" for key, value in results.items()])
     axes[0].text(0.02, 0.95, feature_text, transform=axes[0].transAxes, fontsize=10,
                  verticalalignment='top', bbox=dict(boxstyle="round", facecolor="white", alpha=0.8))
-
 
     # **2nd Plot: Time-Domain Filter Coefficients**
     axes[1].plot(filter_coeffs)  # Discrete impulse response
@@ -120,7 +158,7 @@ def plot_filter_params(w, h, spectral_spread, centroid, filter_coeffs, results):
     plt.show()
 
 
-def estimate_fir_params(filter_coeffs, fs = 1.0, plotting = False, Nfreqz = 2048, features=["centroid", "spread"]):
+def estimate_fir_params(filter_coeffs, fs = 1.0, plotting = False, Nfreqz = 2048, features=["centroid", "spread", "entropy"]):
     """
     Estimate spectral properties of FIR filter
     
@@ -131,7 +169,10 @@ def estimate_fir_params(filter_coeffs, fs = 1.0, plotting = False, Nfreqz = 2048
         Nfreqz : int, number of points in freqz (response digital filter)
         features : list of str
             Which features to compute (default: ["centroid","spread"]).
-            Choose from ["centroid", "spread", "skewness", "kurtosis", "entropy", "ERB"]
+            Choose from ["centroid", "spread", "skewness", "kurtosis", "entropy", "ERB", "peak_frequency", "bandwidth_3db", "center_frequency"]
+            Note: some features require other features: 
+                centroid --> spread --> skewness --> kurtosis 
+                peak_frequency, bandwidth_3db, center_frequency are computed in one go. Specifying one will yield the others as well. 
     Returns:
         results : dict
             Dictionary with requested spectral features.
@@ -142,7 +183,6 @@ def estimate_fir_params(filter_coeffs, fs = 1.0, plotting = False, Nfreqz = 2048
         Nfreqz = 2*len(filter_coeffs)  # Increase Nfreqz
 
     w, h = signal.freqz(filter_coeffs, worN = Nfreqz, fs = fs)  # w in Hz
-   
  
     results = {}
     if "centroid" in features:
@@ -157,6 +197,11 @@ def estimate_fir_params(filter_coeffs, fs = 1.0, plotting = False, Nfreqz = 2048
         results["entropy"] = spectral_entropy(h)
     if "ERB" in features:
         results["ERB"] = ERB(w, h)
+    if {"bandwidth_3db", "peak_frequency", "center_frequency"} & set(features):
+        # bandwidth_3db, center_frequency, peak_frequency
+        # Note: bandwidth_3db takes a method parameter: "first_crossing" or "last_crossing". 
+        # .... "last_crossing" apprxoimates results of smith and lewicki better.... (default) 
+        results["bandwidth_3db"], results["center_frequency"], results["peak_frequency"] = bandwidth_3db(w, h, method = "last_crossing")
 
     if plotting:
         plot_filter_params(w, h, results["spread"], results["centroid"], filter_coeffs, results)
@@ -164,20 +209,19 @@ def estimate_fir_params(filter_coeffs, fs = 1.0, plotting = False, Nfreqz = 2048
     return results
     
     
-def ReadDataCarney(directory, type_of_data): 
+def ReadDataCarney(directory, type_of_data = ".txt"): 
     print("Loading data Carney")
     files = sorted(glob.glob(join(directory, '**', '*' + type_of_data), recursive=True))
 
-    filterflag = False
-
-    print("files: ", len(files))
+    print(f"Found {len(files)} files for Carney Data")
     
     bandwidths = []
     center_freqs = []
-
+    revcors = []
+    sample_rates = []
     for filename in files:
         filepath = abspath(filename)
-    
+        
         try:
             errorFlag = False
         
@@ -190,10 +234,11 @@ def ReadDataCarney(directory, type_of_data):
             magnitude = data[:, 1]    # Second column (Magnitude)    
             Fs = 1.0/(time[1] - time[0])*1000 #*1000 # Sampling frequency [Hz]
             
-            if not filterflag:
-                fir_coeffs = get_FIR(Fs)
-                filterflag = True
-            
+            if np.sum(np.abs(magnitude))<1e-12:
+                errorFlag = True
+                print(f"Error: The file '{filepath}' has a total power < 1e-12 (Exact: {np.sum(np.abs(magnitude))}).")
+                
+      
         except FileNotFoundError:
             errorFlag = True
             print(f"Error: The file '{filepath}' was not found.")
@@ -202,17 +247,43 @@ def ReadDataCarney(directory, type_of_data):
             print(f"Error: {e}")
 
         if not errorFlag:
-            results = estimate_fir_params(magnitude, Fs, plotting = False)
-            center_freq = results["centroid"] 
-            bandwidth = results["spread"] 
-            
-            # Heuristic for filtering out noisy measurements
-            if max(abs(magnitude)) > 3:  
-                bandwidths.append(bandwidth)
-                center_freqs.append(center_freq)
-                
-    return bandwidths, center_freqs
+            revcors.append(magnitude)
+            sample_rates.append(Fs)
+        
+    res = list(set(sample_rates))
+    if len(res) > 1:
+        print(f"Warning: detected multiple sampling rates ({res})")
 
+    return revcors, sample_rates
+
+
+def process_data_Carney(revcors, sample_rate = 20000, plotting=False, features=["centroid", "spread", "entropy", "peak_frequency", "bandwidth_3db"]):
+    # Load in a filter
+    fir_coeffs = get_FIR(sample_rate)
+    revcors_f = []
+    
+    # (1) Filter revcors and remove the ones which likely only contain noise.
+    for revcor in revcors:
+        revcor_f = apply_fir_filter(revcor, fir_coeffs)
+    
+        # Check if there are filters for which the filtering is too agressive
+        fraction_energy = np.linalg.norm(revcor_f)/np.linalg.norm(revcor)
+        if fraction_energy < 0.8:
+            pass # In these cases, the data likely only contains noise.
+            #print(f"Warning: large percentage of energy got filtered out {fraction_energy}")
+            #plt.plot(revcor)
+            #plt.plot(revcor_f)
+            #plt.show()
+        else:
+            revcors_f.append(revcor_f/np.linalg.norm(revcor_f))
+    
+    # (2) We now have the filtered revcors. Compute some statistics. 
+    results = []
+    for revcor_f in revcors_f:
+        result = estimate_fir_params(revcor_f, fs = sample_rate, plotting = plotting, Nfreqz = 2048, features=features)
+        results.append(result)
+    return results, revcors_f
+ 
         
 def CEI(x, max_imfs=6, max_iters=1, conf=None):
     """Compute Cascaded Envelope Interpolation (CEI) modes using EMD."""
