@@ -155,6 +155,8 @@ module train_utils
         if filter_flag
             if isnothing(f)
                 error("filter_flag is true but no filter provided") 
+            elseif size(x, 1) < length(f)
+                @warn "Signal too short for filtfilt ($(size(x,1)) samples < filter length $(length(f))). Skipping filtering."
             else
                 x = DSP.Filters.filtfilt(f, x)
             end
