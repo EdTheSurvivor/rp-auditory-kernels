@@ -264,12 +264,13 @@ def process_data_Carney(revcors, sample_rate = 20000, plotting=False, features=[
     
     # (1) Filter revcors and remove the ones which likely only contain noise.
     for revcor in revcors:
-        revcor_f = apply_fir_filter(revcor, fir_coeffs)
+        revcor_f = revcor # apply_fir_filter(revcor, fir_coeffs) #  if you want to apply a simple filter
     
         # Check if there are filters for which the filtering is too agressive
         fraction_energy = np.linalg.norm(revcor_f)/np.linalg.norm(revcor)
         if fraction_energy < 0.8:
-            pass # In these cases, the data likely only contains noise.
+            # It might be of interest to remove these files. Anyway I will still add them
+             revcors_f.append(revcor_f/np.linalg.norm(revcor_f))
             #print(f"Warning: large percentage of energy got filtered out {fraction_energy}")
             #plt.plot(revcor)
             #plt.plot(revcor_f)
