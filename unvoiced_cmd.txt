@@ -1,0 +1,14 @@
+julia --threads 8 kernel_learning.jl UNVOICEDREDUCEDHIGHSTOPNEW unvoiced_reduced_good.tsv \
+  --logpath training_log.tsv \
+  --mp_max_iter 150 \
+  --mp_stop_cond 0.12 \
+  --mp_rand_stop true \
+  --mp_stop_min 0.10 \
+  --mp_stop_max 0.15 \
+  --apply_normalization true \
+  --apply_filtering false \
+  --init_length 32 \
+  --init_min_length 16 \
+  --init_max_length 64 \
+  --min_length 16 \
+  --max_length 64 \
