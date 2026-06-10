@@ -14,7 +14,7 @@ if VERSION < v"1.11"
 else
     Pkg.activate("MPenvironment")
     # Pkg.instantiate()
-    # Pkg.add("JSON3")
+    Pkg.add("JSON3")
     println("Julia Version ", VERSION, " detected. Activating MPenvironment...")
 end
 
