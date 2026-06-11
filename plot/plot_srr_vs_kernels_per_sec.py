@@ -44,7 +44,7 @@ def compute_srr_curve(norm_list, y):
     norm_list = np.array(norm_list)
     srr = 10 * np.log10(np.linalg.norm(y) / norm_list)
     kernels_per_second = np.linspace(1, len(norm_list) / len(y) * fs, len(norm_list))
-
+    
     return kernels_per_second, srr
 
 
@@ -89,7 +89,11 @@ def main():
         futures = {executor.submit(_process_wav, wav_path): wav_path for wav_path in wav_paths}
         for i, future in enumerate(as_completed(futures)):
             print(f"[{i + 1}/{len(wav_paths)}] Finished matching pursuit on {futures[future]}")
-            curves.append(future.result())
+            kernels_per_second, srr = future.result()
+            if len(kernels_per_second) == 0:
+                print(f"Warning: skipping {futures[future]}, no kernels were extracted (file may be too short).")
+                continue
+            curves.append((kernels_per_second, srr))
 
     max_kps = min(kernels_per_second[-1] for kernels_per_second, _ in curves)
     common_grid = np.linspace(0, max_kps)
