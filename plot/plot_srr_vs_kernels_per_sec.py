@@ -11,10 +11,18 @@ fs = 16000
 import argparse
 import glob
 import os
+import sys
 
 import librosa
 import matplotlib.pyplot as plt
 import numpy as np
+
+# The root of the project is one folder down (and contains the python_utils folder)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.getcwd(), ".."))
+
+# Add project root to sys.path if not already present
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 from utils_python import mp_utils as mp
 from utils_python import utils_notebook as un
@@ -40,19 +48,22 @@ def main():
     parser.add_argument("--data_output", default="output/ssr_vs_kernels_per_sec.tsv", help="Path to save the curve data as a tsv file.")
     args = parser.parse_args()
 
-    wav_paths = sorted(
-        p for p in glob.glob(os.path.join(args.input_dir, "*"))
-        if os.path.splitext(p)[1].lower() == ".wav"
-    )
+    wav_paths = []
+    for root, dirs, files in os.walk(args.input_dir):
+        for file in files:
+            if file.lower().endswith(".wav"):
+                wav_paths.append(os.path.join(root, file))
     if not wav_paths:
         raise FileNotFoundError(f"No wav files found in {args.input_dir}")
+    else:
+        print(f"Found {len(wav_paths)} wav files in {args.input_dir}")
 
     dictionary = mp.create_dictionary_from_JLD2(args.kernels_path)
     print(f"Loaded kernels from {args.kernels_path}")
 
     curves = []
-    for wav_path in wav_paths:
-        print(f"Running matching pursuit on {wav_path}...")
+    for i, wav_path in enumerate(wav_paths):
+        print(f"[{i}/{len(wav_paths)}] Running matching pursuit on {wav_path}...")
         y, _ = librosa.load(wav_path, sr=fs)
         y = y / np.max(np.abs(y))
         kernels_per_second, srr = compute_srr_curve(dictionary, y)
