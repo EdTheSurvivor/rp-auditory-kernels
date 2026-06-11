@@ -2,6 +2,16 @@ import os
 import re
 import argparse
 from pathlib import Path
+import sys
+
+# The root of the project is one folder down (and contains the python_utils folder)
+PROJECT_ROOT = os.path.abspath(os.path.join(os.getcwd(), ".."))
+
+# Add project root to sys.path if not already present
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from utils_python import utils as u
 
 
 def parse_filename(fname):
@@ -80,13 +90,7 @@ def main():
     args = parser.parse_args()
     directory = Path(args.d)
 
-    paths = []
-    for root, dirs, files in os.walk(directory):
-        for file in files:
-            if file.lower().endswith(".wav"):
-                paths.append(os.path.join(root, file))
-
-    print(f"Found {len(paths)} wav files in {directory}")
+    paths = u.find_wav_paths(directory)
 
     if args.reduce:
         print(f"Reducing...")

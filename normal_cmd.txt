@@ -1,0 +1,15 @@
+
+
+ julia --threads 8 kernel_learning.jl NORMAL TIMIT_train_local.tsv   --logpath training_log.tsv   --mp_max_iter 1000   --mp_stop_cond 0.12   --mp_rand_stop true   --mp_stop_min 0.10   --mp_stop_max 0.15   --apply_normalization true   --tsv_col_segments segments
+ 
+  === Summary statistics per epoch ===
+6×6 DataFrame
+ Row │ epoch  mean_SRR  std_SRR  mean_kernels  std_kernels  count
+     │ Int64  Float64   Float64  Float64       Float64      Int64
+─────┼────────────────────────────────────────────────────────────
+   1 │     1   14.3042  1.82488       549.001      203.986   4945
+   2 │     2   14.7929  1.71266       514.147      162.474   4945
+   3 │     3   14.5714  1.68099       509.377      164.695   4945
+   4 │     4   14.829   1.70267       498.143      161.119   4945
+   5 │     5   14.843   1.71043       494.67       158.507   4945
+   6 │     6   14.875   1.70438       499.456      163.577   4924
