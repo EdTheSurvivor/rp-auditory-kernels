@@ -62,6 +62,11 @@ def main():
     parser.add_argument("--data_output", default="output/ssr_vs_kernels_per_sec.tsv", help="Path to save the curve data as a tsv file.")
     args = parser.parse_args()
 
+    if os.path.dirname(args.output):
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    if os.path.dirname(args.data_output):
+        os.makedirs(os.path.dirname(args.data_output), exist_ok=True)
+
     wav_paths = []
     for root, dirs, files in os.walk(args.input_dir):
         for file in files:
