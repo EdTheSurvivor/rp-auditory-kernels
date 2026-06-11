@@ -49,6 +49,10 @@ module mp_utils
         Kernel(x.kernel, x.gradient, 1.0)
     end
 
+    function JLD2.convert(::Type{Kernel}, x::JLD2.ReconstructedMutable{:Kernel, (:kernel, :gradient, :abs_amp), Tuple{Any, Any, Float64}})
+        Kernel(x.kernel, x.gradient, 1.0)
+    end
+
     mutable struct KernelFourier
         kernel::Vector{ComplexF64}       # The frequency domain kernel (1D array)
     end
