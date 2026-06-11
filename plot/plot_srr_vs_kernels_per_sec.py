@@ -12,6 +12,7 @@ import argparse
 import glob
 import os
 import sys
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 import librosa
 import matplotlib.pyplot as plt
@@ -40,6 +41,19 @@ def compute_srr_curve(dictionary, y):
     return kernels_per_second, srr
 
 
+_dictionary = None
+
+def _init_worker(kernels_path):
+    global _dictionary
+    _dictionary = mp.create_dictionary_from_JLD2(kernels_path)
+
+
+def _process_wav(wav_path):
+    y, _ = librosa.load(wav_path, sr=fs)
+    y = y / np.max(np.abs(y))
+    return compute_srr_curve(_dictionary, y)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Plots the SRR vs kernels per second, averaged over a directory of wav files.")
     parser.add_argument("--input_dir", required=True, help="Input directory containing all wav files to be reconstructed.")
@@ -58,16 +72,14 @@ def main():
     else:
         print(f"Found {len(wav_paths)} wav files in {args.input_dir}")
 
-    dictionary = mp.create_dictionary_from_JLD2(args.kernels_path)
-    print(f"Loaded kernels from {args.kernels_path}")
+    num_workers = os.cpu_count()
 
     curves = []
-    for i, wav_path in enumerate(wav_paths):
-        print(f"[{i}/{len(wav_paths)}] Running matching pursuit on {wav_path}...")
-        y, _ = librosa.load(wav_path, sr=fs)
-        y = y / np.max(np.abs(y))
-        kernels_per_second, srr = compute_srr_curve(dictionary, y)
-        curves.append((kernels_per_second, srr))
+    with ProcessPoolExecutor(max_workers=num_workers, initializer=_init_worker, initargs=(args.kernels_path,)) as executor:
+        futures = {executor.submit(_process_wav, wav_path): wav_path for wav_path in wav_paths}
+        for i, future in enumerate(as_completed(futures)):
+            print(f"[{i + 1}/{len(wav_paths)}] Finished matching pursuit on {futures[future]}")
+            curves.append(future.result())
 
     max_kps = min(kernels_per_second[-1] for kernels_per_second, _ in curves)
     common_grid = np.linspace(0, max_kps)
