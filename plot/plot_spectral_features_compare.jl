@@ -1,7 +1,8 @@
 """
     Script for plotting and comparing the spectral features (centroid vs bandwidth) of multiple saved sets of kernels in a single graph.
     Code taken from kernel_learning.jl and mp_utils.jl
-    Basic usage:
+    
+    Usage:
         julia plot_spectral_features_compare.jl <JLD2_FILE_1> <LABEL_1> [<JLD2_FILE_2> <LABEL_2> ...] [--output=OUTPUT_FILE]
     Example:
         julia plot_spectral_features_compare.jl ResultsUNVOICEDREDUCEDHIGHSTOPNEW/epoch_6.jld2 Unvoiced ResultsVOICEDFILTERSTOPNEW/epoch_6.jld2 Voiced jupyter-notebook/kernels/kernels.jld2 Notebook --output=spectral_features_compare.svg

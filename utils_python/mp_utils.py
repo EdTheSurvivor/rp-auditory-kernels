@@ -501,15 +501,15 @@ def short_time_matching_pursuit(dictionary, x_full, stop_type, stop_condition, h
         kernel_length = np.array([len(kernel.kernel) for kernel in dictionary])
     
     if hop_length is None:
-        print("Warning: No hop_length specified. Using default value of maximum kernel length.")
+        # print("Warning: No hop_length specified. Using default value of maximum kernel length.")
         hop_length = kernel_length.max()
 
     if window_length is None:
-        print("Warning: No window_length specified. Using default value of 2*(maximum kernel length).")
+        # print("Warning: No window_length specified. Using default value of 2*(maximum kernel length).")
         window_length = 2 * kernel_length.max()
 
     if crop_length is None:
-        print("Warning: No crop_length specified. Using default value of maximum kernel length.")
+        # print("Warning: No crop_length specified. Using default value of maximum kernel length.")
         crop_length = kernel_length.max()
     
     # Initialize variables
