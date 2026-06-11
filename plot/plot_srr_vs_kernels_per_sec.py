@@ -3,7 +3,7 @@ Script for plotting the SRR against the number of kernels per second. It runs fo
 and averages the curves. The output gets saved to a png and a tsv. Short time matching pursuit is used.
 
 Usage:
-    python plot_srr_vs_kernels_per_sec.py <input_dir> <kernels_path> [--output=ssr_vs_kernels_per_sec.png] [--data_output=ssr_vs_kernels_per_sec.tsv]
+    python plot_srr_vs_kernels_per_sec.py [--input_dir] [--kernels_path] [--output=ssr_vs_kernels_per_sec.png] [--data_output=ssr_vs_kernels_per_sec.tsv]
 """
 
 fs = 16000
@@ -98,7 +98,7 @@ def main():
     np.savetxt(
         args.data_output,
         np.column_stack((common_grid, average_srr)),
-        header="kernels_per_second\tsrr_db",
+        header="kernels_per_second\tsrr",
         delimiter="\t",
         comments="",
     )
