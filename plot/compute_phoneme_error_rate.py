@@ -32,8 +32,41 @@ fs = 16000
 
 MODEL = "excalibur12/wav2vec2-large-lv60_phoneme-timit_english_timit-4k"
 
-BATCH_SIZE = 8
+BATCH_SIZE = 16
 
+VOICED = {
+    # Vowels
+    "iy", "ih", "eh", "ey", "ae", "aa", "aw", "ay", "ah", "ao", "oy",
+    "ow", "uh", "uw", "ux", "er", "ax", "ix", "axr",
+    # Semivowels and glides (According to PHONCODE.DOC, hv is voiced)
+    "l", "r", "w", "y", "el", "hv",
+    # Nasals
+    "m", "n", "ng", "em", "en", "eng", "nx",
+    # Voiced fricatives
+    "v", "dh", "z", "zh",
+    # Voiced affricates
+    "jh",
+    # Voiced stops
+    "b", "d", "g", "dx",
+}
+
+UNVOICED = {
+    # Unvoiced fricatives
+    "f", "th", "s", "sh",
+    # Unvoiced affricates
+    "ch",
+    # Unvoiced stops (q is the glottal stop)
+    "p", "t", "k", "q",
+    # Glottal
+    "hh",
+    # Stop closures
+    "bcl", "dcl", "gcl", "pcl", "tck", "kcl",
+    # Devoiced schwa
+    "ax-h",
+}
+
+def filter_phonemes(phonemes: str, phoneme_set: set[str]) -> str:
+    return " ".join(p for p in phonemes.strip().split() if p in phoneme_set)
 
 def phoneme_error_rate(reference: str, hypothesis: str) -> float:
     ref_phones = " ".join(reference.strip().split())
@@ -124,6 +157,15 @@ def main():
                 hypothesis = hypothesis.replace("h#", "").strip()
 
             per = phoneme_error_rate(reference, hypothesis)
+
+            voiced_reference = filter_phonemes(reference, VOICED)
+            voiced_hypothesis = filter_phonemes(hypothesis, VOICED)
+            voiced_per = phoneme_error_rate(voiced_reference, voiced_hypothesis)
+
+            unvoiced_reference = filter_phonemes(reference, UNVOICED)
+            unvoiced_hypothesis =  filter_phonemes(hypothesis, UNVOICED)
+            unvoiced_per = phoneme_error_rate(unvoiced_reference, unvoiced_hypothesis)
+
             # print(f"ref: {reference}\ntrans:{hypothesis}")
             print(f"[{i + 1}/{len(wav_paths)}] PER for {wav_path}: {per:.2%}")
 
@@ -140,13 +182,13 @@ def main():
                     speaker = parts[-5]
                     sample = parts[-4]
                     phonemes = "_".join(parts[1:-5])
-                    results.append((f"[{phonemes}]-{speaker}-{sample}", per, reference, hypothesis))
+                    results.append((f"[{phonemes}]-{speaker}-{sample}", per, voiced_per, unvoiced_per, reference, hypothesis))
                     continue
                 else:
                     speaker = parts[0]
                     sample = parts[1]
 
-            results.append((f"{speaker}-{sample}", per, reference, hypothesis))
+            results.append((f"{speaker}-{sample}", per, voiced_per, unvoiced_per, reference, hypothesis))
 
     for i, wav_path in enumerate(wav_paths):
         reference = ''
@@ -177,19 +219,21 @@ def main():
     if batch:
         process_batch(batch)
 
-    pers = np.array([per for _, per, _, _ in results])
+    pers = np.array([per for _, per, _, _, _, _ in results])
+    voiced_pers = np.array([voiced_per for _, _, voiced_per, _, _, _ in results])
+    unvoiced_pers = np.array([unvoiced_per for _, _, _, unvoiced_per, _, _ in results])
     print(f"Average PER over {len(pers)} files: {pers.mean():.2%}")
 
     if os.path.dirname(output):
         os.makedirs(os.path.dirname(output), exist_ok=True)
     with open(output, "w") as f:
         if timit_phn_path is None:
-            f.write("phonemes-speaker-sample\tper\treference\thypothesis\n")
+            f.write("phonemes-speaker-sample\tper\tvoiced_per\tunvoiced_per\treference\thypothesis\n")
         else:
-            f.write("speaker-sample\tper\treference\thypothesis\n")
-        for speaker_sample, per, reference, hypothesis in results:
-            f.write(f"{speaker_sample}\t{per}\t{reference}\t{hypothesis}\n")
-        f.write(f"average\t{pers.mean()}\n")
+            f.write("speaker-sample\tper\tvoiced_per\tunvoiced_per\treference\thypothesis\n")
+        for speaker_sample, per, voiced_per, unvoiced_per, reference, hypothesis in results:
+            f.write(f"{speaker_sample}\t{per}\t{voiced_per}\t{unvoiced_per}\t{reference}\t{hypothesis}\n")
+        f.write(f"average\t{pers.mean()}\t{voiced_pers.mean()}\t{unvoiced_pers.mean()}\n")
     print(f"Saved PER results to {output}")
 
 

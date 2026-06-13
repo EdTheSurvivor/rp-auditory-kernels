@@ -2,9 +2,9 @@
 Script for combining multiple phoneme error rate tsv files as produced by
 compute_phoneme_error_rate.py into a single tsv.
 
-Rows with the same speaker-sample are merged: the speaker-sample and
-reference columns are kept once, while the per and hypothesis columns are
-taken from each input file and renamed to <file_stem>_per and
+Rows with the same speaker-sample are merged; the speaker-sample and
+reference columns are kept once, while the per, voiced_per, unvoiced_per and hypothesis columns are
+taken from each input file and renamed to <file_stem>_per, <file_stem>_voiced_per, <file_stem>_unvoiced_per and
 <file_stem>_hypothesis.
 
 Usage:
@@ -57,12 +57,16 @@ def main():
             if not entry.get("reference"):
                 entry["reference"] = row.get("reference", "")
             entry[f"{stem}_per"] = row.get("per", "")
+            entry[f"{stem}_voiced_per"] = row.get("voiced_per", "")
+            entry[f"{stem}_unvoiced_per"] = row.get("unvoiced_per", "")
             entry[f"{stem}_hypothesis"] = row.get("hypothesis", "")
 
     fieldnames = [key_field, "reference"]
     for tsv_path in args.tsvs:
         stem = Path(tsv_path).stem
         fieldnames.append(f"{stem}_per")
+        fieldnames.append(f"{stem}_voiced_per")
+        fieldnames.append(f"{stem}_unvoiced_per")
         fieldnames.append(f"{stem}_hypothesis")
 
     if os.path.dirname(output):
