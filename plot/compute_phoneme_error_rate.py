@@ -39,11 +39,12 @@ def phoneme_error_rate(reference: str, hypothesis: str) -> float:
     return wer(ref_phones, hyp_phones)
 
 
-def find_phn_path(wav_path):
-    wav_path = Path(wav_path)
+def find_phn_path(timit_phn_path, wav_path):
+    # wav_path has structure "{speaker}_{sample}_rec.WAV"
+    sample = Path(wav_path).stem.split("_")[1]
+    timit_phn_path = Path(timit_phn_path)
     for ext in (".phn", ".PHN"):
-        phn_path = wav_path.with_suffix(ext)
-        if phn_path.exists():
+        for phn_path in timit_phn_path.rglob(f"{sample}{ext}"):
             return phn_path
     return None
 
@@ -61,10 +62,10 @@ def get_phoneme_list(phn_path):
 
 
 def get_phoneme_list_from_filename(wav_path):
-    # File name format is "{phoneme}_{speaker}_{stem}_{start}_{end}.wav",
+    # File name format is "{category}_{phoneme}_{speaker}_{stem}_{start}_{end}_rec.wav",
     # where {phoneme} is itself "phn_phn_..." for an arbitrary number of phonemes.
     parts = Path(wav_path).stem.split("_")
-    phonemes = parts[:-4]
+    phonemes = parts[1:-5]
     return " ".join(phonemes)
 
 def get_transcription(audio, processor: Wav2Vec2Processor, model: Wav2Vec2Processor) -> str:
@@ -81,24 +82,20 @@ def get_transcription(audio, processor: Wav2Vec2Processor, model: Wav2Vec2Proces
 
 def main():
     parser = argparse.ArgumentParser(description="Compute the phoneme error rate of all wav files in a directory.")
-    parser.add_argument("input_dir_tsv", help="Directory (if --timit) or tsv with the wav file paths")
+    parser.add_argument("input_dir", help="Directory with the wav file paths")
     parser.add_argument("--output", default="output/phoneme_error_rate.tsv", help="Path to save the PER results as a tsv file.")
-    parser.add_argument("--timit", action="store_true",
-                        help="If true, the input directory is a TIMIT style directory with .PHN files. If false, the phonetics will be taken from the wav name.")
+    parser.add_argument("--timit_phn_path", 
+                        help="A path to the TIMIT style directory with .PHN files. If not set, the phonetics will be taken from the wav name.")
     args = parser.parse_args()
 
-    input_path = Path(args.input_dir_tsv)
+    input_path = Path(args.input_dir)
+    timit_phn_path = args.timit_phn_path
 
-    if args.timit:
-        if not input_path.is_dir():
-            parser.error(f"--timit is set, so input_dir_tsv must be a directory: {input_path}")
-        wav_paths = u.find_wav_paths(input_path)
-    else:
-        if not input_path.is_file():
-            parser.error(f"--timit is not set, so input_dir_tsv must be a tsv file: {input_path}")
-        with open(input_path) as f:
-            wav_paths = [line.strip() for line in f.readlines()[1:] if line.strip()]
+    if not input_path.is_dir():
+        parser.error(f"input_dir must be a directory file: {input_path}")
 
+    wav_paths = u.find_wav_paths(input_path)
+        
     processor = Wav2Vec2Processor.from_pretrained(MODEL)
     model = Wav2Vec2ForCTC.from_pretrained(MODEL)
     model.eval()
@@ -108,8 +105,8 @@ def main():
 
         reference = ''
 
-        if(args.timit):
-            phn_path = find_phn_path(wav_path)
+        if(timit_phn_path is not None):
+            phn_path = find_phn_path(timit_phn_path, wav_path)
             if phn_path is None:
                 print(f"[{i + 1}/{len(wav_paths)}] No phn file for {wav_path}, skipping.")
                 continue

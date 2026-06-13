@@ -75,7 +75,7 @@ def main():
         description="Generate a TSV file of paths to split TIMIT wav files, optionally reduced"
     )
     parser.add_argument(
-        "-d", required=True,
+        "input_dir",
         help="Path to the directory with the wav files"
     )
     parser.add_argument(
@@ -88,7 +88,7 @@ def main():
     )
 
     args = parser.parse_args()
-    directory = Path(args.d)
+    directory = Path(args.input_dir)
 
     paths = u.find_wav_paths(directory)
 

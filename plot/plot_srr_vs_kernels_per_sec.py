@@ -71,7 +71,7 @@ def _process_wav(wav_path):
 
 def main():
     parser = argparse.ArgumentParser(description="Plots the SRR vs kernels per second, averaged over a directory of wav files.")
-    parser.add_argument("input_dir", help="Input directory containing all wav files to be reconstructed.")
+    parser.add_argument("input_dir", help="Input directory containing all wav files to be reconstructed, or a .tsv file with a 'path_wav' column listing wav paths.")
     parser.add_argument("kernels_path", help="Path to the JLD2 file containing the dictionary of kernels.")
     parser.add_argument("--name", default="ssr_vs_kernels_per_sec", help="Name of the wav and kernel combo")
     args = parser.parse_args()
@@ -82,7 +82,15 @@ def main():
 
     os.makedirs(reconstruct_dir, exist_ok=True)
 
-    wav_paths = u.find_wav_paths(args.input_dir)
+    if args.input_dir.lower().endswith(".tsv"):
+        with open(args.input_dir, "r") as f:
+            lines = [line.strip() for line in f.readlines()]
+        header = lines[0].split("\t")
+        col_idx = header.index("path_wav")
+        wav_paths = [line.split("\t")[col_idx] for line in lines[1:] if line]
+        print(f"Found {len(wav_paths)} wav files in {args.input_dir}")
+    else:
+        wav_paths = u.find_wav_paths(args.input_dir)
 
     num_workers = os.cpu_count()
 
