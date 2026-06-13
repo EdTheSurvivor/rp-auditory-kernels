@@ -7,6 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "emd>=0.8.1",
     "h5py>=3.16.0",
+    "jiwer>=3.1.0",
     "jupyter>=1.1.1",
     "librosa>=0.11.0",
     "matplotlib>=3.10.8",
@@ -14,4 +15,16 @@ dependencies = [
     "pesq>=0.0.4",
     "scipy>=1.17.1",
     "seaborn>=0.13.2",
+    "torch>=2.12.0",
+    "transformers>=4.57.0",
 ]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cu126" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true

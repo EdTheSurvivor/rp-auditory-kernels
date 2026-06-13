@@ -32,6 +32,8 @@ fs = 16000
 
 MODEL = "excalibur12/wav2vec2-large-lv60_phoneme-timit_english_timit-4k"
 
+BATCH_SIZE = 8
+
 
 def phoneme_error_rate(reference: str, hypothesis: str) -> float:
     ref_phones = " ".join(reference.strip().split())
@@ -39,13 +41,20 @@ def phoneme_error_rate(reference: str, hypothesis: str) -> float:
     return wer(ref_phones, hyp_phones)
 
 
-def find_phn_path(timit_phn_path, wav_path):
+def find_phn_path(timit_phn_path, wav_path, timit):
     # wav_path has structure "{speaker}_{sample}_rec.WAV"
-    sample = Path(wav_path).stem.split("_")[1]
-    timit_phn_path = Path(timit_phn_path)
-    for ext in (".phn", ".PHN"):
-        for phn_path in timit_phn_path.rglob(f"{sample}{ext}"):
-            return phn_path
+    # If timit, wav_path has structure "{sample}.WAV"
+    if timit: 
+        for ext in (".phn", ".PHN"):
+            phn_path = Path(wav_path).with_suffix(ext)
+            if phn_path.exists():
+                return phn_path
+    else:
+        sample = Path(wav_path).stem.split("_")[1]
+        timit_phn_path = Path(timit_phn_path)
+        for ext in (".phn", ".PHN"):
+            for phn_path in timit_phn_path.rglob(f"{sample}{ext}"):
+                return phn_path
     return None
 
 
@@ -68,45 +77,82 @@ def get_phoneme_list_from_filename(wav_path):
     phonemes = parts[1:-5]
     return " ".join(phonemes)
 
-def get_transcription(audio, processor: Wav2Vec2Processor, model: Wav2Vec2Processor) -> str:
-    inputs = processor(audio, sampling_rate=fs, return_tensors="pt", padding=True)
+def get_transcriptions(audios, processor: Wav2Vec2Processor, model: Wav2Vec2ForCTC, device: torch.device) -> list[str]:
+    inputs = processor(audios, sampling_rate=fs, return_tensors="pt", padding=True)
+    inputs = {k: v.to(device) for k, v in inputs.items()}
 
     with torch.no_grad():
         logits = model(**inputs).logits
-        
-    predicted_ids = torch.argmax(logits, dim=-1)
-    transcription = processor.batch_decode(predicted_ids)[0]
 
-    return transcription
+    predicted_ids = torch.argmax(logits, dim=-1)
+    return processor.batch_decode(predicted_ids)
 
 
 def main():
     parser = argparse.ArgumentParser(description="Compute the phoneme error rate of all wav files in a directory.")
     parser.add_argument("input_dir", help="Directory with the wav file paths")
-    parser.add_argument("--output", default="output/phoneme_error_rate.tsv", help="Path to save the PER results as a tsv file.")
+    parser.add_argument("--output", default="phoneme_error_rate", help="Name to save the PER results as a tsv file.")
     parser.add_argument("--timit_phn_path", 
                         help="A path to the TIMIT style directory with .PHN files. If not set, the phonetics will be taken from the wav name.")
+    parser.add_argument("--timit", action='store_true', help="If the input is a TIMIT directory with standard {sample}.WAV file names" )
     args = parser.parse_args()
 
     input_path = Path(args.input_dir)
     timit_phn_path = args.timit_phn_path
+    output = f"output/{args.output}.tsv"
 
     if not input_path.is_dir():
         parser.error(f"input_dir must be a directory file: {input_path}")
 
     wav_paths = u.find_wav_paths(input_path)
-        
+
+    print(f"Using GPU: {torch.cuda.is_available()}")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     processor = Wav2Vec2Processor.from_pretrained(MODEL)
     model = Wav2Vec2ForCTC.from_pretrained(MODEL)
     model.eval()
+    model.to(device)
 
     results = []
-    for i, wav_path in enumerate(wav_paths):
+    batch = []  # list of (i, wav_path, reference, audio)
 
+    def process_batch(batch):
+        hypotheses = get_transcriptions([audio for _, _, _, audio in batch], processor, model, device)
+        for (i, wav_path, reference, _), hypothesis in zip(batch, hypotheses):
+            # Our file names do not contain h#, but the transcription does give them
+            if timit_phn_path is None:
+                hypothesis = hypothesis.replace("h#", "").strip()
+
+            per = phoneme_error_rate(reference, hypothesis)
+            # print(f"ref: {reference}\ntrans:{hypothesis}")
+            print(f"[{i + 1}/{len(wav_paths)}] PER for {wav_path}: {per:.2%}")
+
+            speaker = ''
+            sample = ''
+
+            if args.timit:
+                path = Path(wav_path)
+                speaker = path.parent.name
+                sample = path.stem
+            else:
+                parts = Path(wav_path).stem.split("_")
+                if timit_phn_path is None:
+                    speaker = parts[-5]
+                    sample = parts[-4]
+                    phonemes = "_".join(parts[1:-5])
+                    results.append((f"[{phonemes}]-{speaker}-{sample}", per, reference, hypothesis))
+                    continue
+                else:
+                    speaker = parts[0]
+                    sample = parts[1]
+
+            results.append((f"{speaker}-{sample}", per, reference, hypothesis))
+
+    for i, wav_path in enumerate(wav_paths):
         reference = ''
 
         if(timit_phn_path is not None):
-            phn_path = find_phn_path(timit_phn_path, wav_path)
+            phn_path = find_phn_path(timit_phn_path, wav_path, args.timit)
             if phn_path is None:
                 print(f"[{i + 1}/{len(wav_paths)}] No phn file for {wav_path}, skipping.")
                 continue
@@ -123,27 +169,28 @@ def main():
             print(f"[{i + 1}/{len(wav_paths)}] Audio too short ({len(audio)} samples) for {wav_path}, skipping.")
             continue
 
-        hypothesis = get_transcription(audio, processor, model)
+        batch.append((i, wav_path, reference, audio))
+        if len(batch) >= BATCH_SIZE:
+            process_batch(batch)
+            batch = []
 
-        if (not args.timit):
-            hypothesis = hypothesis.replace("h#", "").strip()
+    if batch:
+        process_batch(batch)
 
-        per = phoneme_error_rate(reference, hypothesis)
-        # print(f"ref: {reference}\ntrans:{hypothesis}")
-        print(f"[{i + 1}/{len(wav_paths)}] PER for {wav_path}: {per:.2%}")
-        results.append((wav_path, per))
-
-    pers = np.array([per for _, per in results])
+    pers = np.array([per for _, per, _, _ in results])
     print(f"Average PER over {len(pers)} files: {pers.mean():.2%}")
 
-    if os.path.dirname(args.output):
-        os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, "w") as f:
-        f.write("wav_path\tper\n")
-        for wav_path, per in results:
-            f.write(f"{wav_path}\t{per}\n")
+    if os.path.dirname(output):
+        os.makedirs(os.path.dirname(output), exist_ok=True)
+    with open(output, "w") as f:
+        if timit_phn_path is None:
+            f.write("phonemes-speaker-sample\tper\treference\thypothesis\n")
+        else:
+            f.write("speaker-sample\tper\treference\thypothesis\n")
+        for speaker_sample, per, reference, hypothesis in results:
+            f.write(f"{speaker_sample}\t{per}\t{reference}\t{hypothesis}\n")
         f.write(f"average\t{pers.mean()}\n")
-    print(f"Saved PER results to {args.output}")
+    print(f"Saved PER results to {output}")
 
 
 if __name__ == "__main__":
