@@ -32,7 +32,7 @@ from utils_python import utils_notebook as un
 from utils_python import utils as u
 
 def reconstruct(dictionary, y, output_path):
-    encoded_waveform, _ = mp.short_time_matching_pursuit(dictionary, y, "abs_amplitude", 0.05)
+    encoded_waveform, _ = mp.short_time_matching_pursuit(dictionary, y, "abs_amplitude", 0.03)
 
     encoded_waveform_sorted = sorted(encoded_waveform, key=lambda tup: abs(tup[1]), reverse=True)
     reconstructed_waveform, norm_list = un.reconstruct_and_get_norm(dictionary, encoded_waveform_sorted, y)
@@ -61,7 +61,9 @@ def _process_wav(wav_path):
     y, _ = librosa.load(wav_path, sr=fs)
     y = y / np.max(np.abs(y))
 
-    output_path = Path(_reconstruct_dir) / Path(wav_path).with_stem(Path(wav_path).stem + "_rec").name
+    wav_path_obj = Path(wav_path)
+    new_stem = f"{wav_path_obj.parent.name}_{wav_path_obj.stem}_rec"
+    output_path = Path(_reconstruct_dir) / wav_path_obj.with_stem(new_stem).name
 
     norm_list = reconstruct(_dictionary, y, output_path)
     return compute_srr_curve(norm_list, y)
