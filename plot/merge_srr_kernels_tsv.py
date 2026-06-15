@@ -24,16 +24,19 @@ def main():
     if len(args.tsv_label) % 2 != 0:
         raise ValueError("Expected pairs of <tsv_path> <label>.")
 
+    max_kps_per_curve = []
     for i in range(0, len(args.tsv_label), 2):
         tsv_path = args.tsv_label[i]
         label = args.tsv_label[i + 1]
 
         kernels_per_second, srr = np.loadtxt(tsv_path, skiprows=1, unpack=True)
         plt.plot(kernels_per_second, srr, label=label)
+        max_kps_per_curve.append(kernels_per_second[-1])
 
     plt.title("SSR vs Number of kernels/second")
     plt.xlabel("kernels/second")
     plt.ylabel("SRR [dB]")
+    plt.xlim(right=min(max_kps_per_curve) + 50)
     plt.legend()
     plt.grid()
     plt.savefig(f"output/{args.output}.png")

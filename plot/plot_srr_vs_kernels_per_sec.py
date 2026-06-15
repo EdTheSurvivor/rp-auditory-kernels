@@ -31,8 +31,8 @@ from utils_python import mp_utils as mp
 from utils_python import utils_notebook as un
 from utils_python import utils as u
 
-def reconstruct(dictionary, y, output_path):
-    encoded_waveform, _ = mp.short_time_matching_pursuit(dictionary, y, "abs_amplitude", 0.03)
+def reconstruct(dictionary, y, output_path): # Used 0.03 for TIMIT sounds
+    encoded_waveform, _ = mp.short_time_matching_pursuit(dictionary, y, "abs_amplitude", 0.05)
 
     encoded_waveform_sorted = sorted(encoded_waveform, key=lambda tup: abs(tup[1]), reverse=True)
     reconstructed_waveform, norm_list = un.reconstruct_and_get_norm(dictionary, encoded_waveform_sorted, y)
