@@ -36,7 +36,7 @@ MAJOR_CATEGORIES = {
     4: "vocalization",   # Frog
     5: "vocalization",   # Cat
     6: "vocalization",   # Hen
-    7: "ambient",        # Insects
+    7: "ambient",        # Insects (insects do not have vocal cords)
     8: "vocalization",   # Sheep
     9: "vocalization",   # Crow
     10: "ambient",       # Rain

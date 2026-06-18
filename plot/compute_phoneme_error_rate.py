@@ -34,20 +34,42 @@ MODEL = "excalibur12/wav2vec2-large-lv60_phoneme-timit_english_timit-4k"
 
 BATCH_SIZE = 16
 
+# Lee & Hon (1989) 39-phone set: maps TIMIT 61 phones to 39; None means delete.
+PHONE_MAP_39 = {
+    # Vowels — identity
+    "iy": "iy", "ih": "ih", "eh": "eh", "ae": "ae", "aa": "aa",
+    "aw": "aw", "ay": "ay", "er": "er", "ey": "ey", "ow": "ow",
+    "oy": "oy", "uh": "uh", "uw": "uw", "ah": "ah",
+    # Vowel folds
+    "ao": "aa", "ax": "ah", "ax-h": "ah", "axr": "er",
+    "ix": "ih", "ux": "uw",
+    # Consonants — identity
+    "hh": "hh", "b": "b", "d": "d", "g": "g", "p": "p", "t": "t", "k": "k",
+    "jh": "jh", "ch": "ch", "s": "s", "sh": "sh", "z": "z", "zh": "zh",
+    "f": "f", "th": "th", "v": "v", "dh": "dh",
+    "m": "m", "n": "n", "ng": "ng", "l": "l", "r": "r", "w": "w", "y": "y",
+    # Consonant folds
+    "hv": "hh", "el": "l", "em": "m", "en": "n", "eng": "ng", "nx": "n",
+    "dx": "d",
+    # Silence/closure — deleted (not scored)
+    "bcl": None, "dcl": None, "gcl": None, "pcl": None, "tcl": None, "kcl": None,
+    "pau": None, "h#": None, "epi": None,
+    "q": None,
+}
+
 VOICED = {
     # Vowels
-    "iy", "ih", "eh", "ey", "ae", "aa", "aw", "ay", "ah", "ao", "oy",
-    "ow", "uh", "uw", "ux", "er", "ax", "ix", "axr",
-    # Semivowels and glides (According to PHONCODE.DOC, hv is voiced)
-    "l", "r", "w", "y", "el", "hv",
+    "iy", "ih", "eh", "ae", "aa", "aw", "ay", "er", "ey", "ow", "oy", "uh", "uw", "ah",
+    # Semivowels and glides
+    "l", "r", "w", "y",
     # Nasals
-    "m", "n", "ng", "em", "en", "eng", "nx",
+    "m", "n", "ng",
     # Voiced fricatives
     "v", "dh", "z", "zh",
     # Voiced affricates
     "jh",
     # Voiced stops
-    "b", "d", "g", "dx",
+    "b", "d", "g",
 }
 
 UNVOICED = {
@@ -55,15 +77,19 @@ UNVOICED = {
     "f", "th", "s", "sh",
     # Unvoiced affricates
     "ch",
-    # Unvoiced stops (q is the glottal stop)
-    "p", "t", "k", "q",
+    # Unvoiced stops
+    "p", "t", "k",
     # Glottal
     "hh",
-    # Stop closures
-    "bcl", "dcl", "gcl", "pcl", "tck", "kcl",
-    # Devoiced schwa
-    "ax-h",
 }
+
+def map_to_39(phonemes: str) -> str:
+    result = []
+    for p in phonemes.strip().split():
+        mapped = PHONE_MAP_39.get(p, p)
+        if mapped is not None:
+            result.append(mapped)
+    return " ".join(result)
 
 def filter_phonemes(phonemes: str, phoneme_set: set[str]) -> str:
     return " ".join(p for p in phonemes.strip().split() if p in phoneme_set)
@@ -140,7 +166,7 @@ def main():
     wav_paths = u.find_wav_paths(input_path)
 
     print(f"Using GPU: {torch.cuda.is_available()}")
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else  "cpu")
     processor = Wav2Vec2Processor.from_pretrained(MODEL)
     model = Wav2Vec2ForCTC.from_pretrained(MODEL)
     model.eval()
@@ -152,9 +178,8 @@ def main():
     def process_batch(batch):
         hypotheses = get_transcriptions([audio for _, _, _, audio in batch], processor, model, device)
         for (i, wav_path, reference, _), hypothesis in zip(batch, hypotheses):
-            # Our file names do not contain h#, but the transcription does give them
-            if timit_phn_path is None:
-                hypothesis = hypothesis.replace("h#", "").strip()
+            reference = map_to_39(reference)
+            hypothesis = map_to_39(hypothesis)
 
             per = phoneme_error_rate(reference, hypothesis)
 
