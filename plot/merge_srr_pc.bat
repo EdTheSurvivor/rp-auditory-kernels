@@ -1,0 +1,3 @@
+py .\merge_srr_kernels_tsv.py --output timit_reconstruct output/srr_vs_kernels/voiced_on_timit.tsv Voiced output/srr_vs_kernels/unvoiced_on_timit.tsv Unvoiced output/srr_vs_kernels/normal_on_timit.tsv Full-Utterance
+py .\merge_srr_kernels_tsv.py --output voiced_reconstruct output/srr_vs_kernels/voiced_on_voiced.tsv Voiced output/srr_vs_kernels/unvoiced_on_voiced.tsv Unvoiced output/srr_vs_kernels/normal_on_voiced.tsv Full-Utterance
+py .\merge_srr_kernels_tsv.py --output unvoiced_reconstruct output/srr_vs_kernels/voiced_on_unvoiced.tsv Voiced output/srr_vs_kernels/unvoiced_on_unvoiced.tsv Unvoiced output/srr_vs_kernels/normal_on_unvoiced.tsv Full-Utterance

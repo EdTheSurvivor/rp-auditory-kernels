@@ -10,13 +10,13 @@
 
 import Pkg
 if VERSION < v"1.11"
-    Pkg.activate("MPenvironment10")
+    Pkg.activate("../MPenvironment10")
 else
-    Pkg.activate("MPenvironment")
+    Pkg.activate("../MPenvironment")
 end
 
-include(joinpath(@__DIR__, "utils_julia/mp_utils.jl"))
-include(joinpath(@__DIR__, "utils_julia/filter_utils.jl"))
+include(joinpath(@__DIR__, "../utils_julia/mp_utils.jl"))
+include(joinpath(@__DIR__, "../utils_julia/filter_utils.jl"))
 using .mp_utils
 using .filter_utils
 using Plots
@@ -36,7 +36,7 @@ function get_centroids_and_bandwidths(jld2_path, fs)
 end
 
 function main()
-    output_path = "spectral_features_compare.svg"
+    output_path = "output/spectral_features_compare.svg"
     fs = 16000
     path_names_args = String[]
 
@@ -52,27 +52,38 @@ function main()
         error("Usage: julia plot_spectral_features_compare.jl <JLD2_FILE_1> <LABEL_1> [<JLD2_FILE_2> <LABEL_2> ...] [--output=OUTPUT_FILE]")
     end
 
-    xlim = [100, fs/2]
-    ylim = [30, fs/4]
+    xlim = [100/1000, fs/2/1000]
+    ylim = [30/1000, fs/4/1000]
+
+    xtick_vals = [0.1, 0.2, 0.5, 1, 2, 5]
+    ytick_vals = [0.05, 0.1, 0.2, 0.5, 1, 2, 4]
 
     p = plot(
-        xlabel="Spectral Centroid (Hz)",
-        ylabel="Spectral Bandwidth (Hz)",
+        xlabel="Spectral Centroid (kHz)",
+        ylabel="Spectral Bandwidth (kHz)",
         title="Kernel Spectral Features",
         xscale=:log10,
         yscale=:log10,
         xlims=xlim,
         ylims=ylim,
+        xticks=(xtick_vals, string.(xtick_vals)),
+        yticks=(ytick_vals, string.(ytick_vals)),
         legend=true,
         grid=true,
         minorgrid=true
     )
 
+    markers = [:utriangle, :circle, :square]
+    colors  = [:green, :black, :red]
+
     for i in 1:2:length(path_names_args)
         jld2_path = path_names_args[i]
         label = path_names_args[i+1]
         centroids, bandwidths = get_centroids_and_bandwidths(jld2_path, fs)
-        scatter!(p, centroids, bandwidths, label=label, markersize=3)
+        idx    = div(i, 2) + 1
+        marker = markers[mod1(idx, length(markers))]
+        color  = colors[mod1(idx, length(colors))]
+        scatter!(p, centroids ./ 1000, bandwidths ./ 1000, label=label, markersize=3, markershape=marker, color=color)
     end
 
     savefig(p, output_path)

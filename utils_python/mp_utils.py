@@ -258,9 +258,9 @@ def plot_dictionary_elements(dictionary, title = None, show=True, sample_rate = 
             kernel_length = len(kernel)
             if sample_rate is not None:
                 kernel_duration = 1000 * kernel_length / sample_rate
-                ax.text(0.5, 0.9, f"{kernel_duration:.2f} ms", fontsize=8, color='red', transform=ax.transAxes)
+                ax.set_title(f"{kernel_duration:.2f} ms", fontsize=14, color='red', pad=2)
             else:
-                ax.text(0.5, 0.9, f"{kernel_length} samples", fontsize=8, color='red', transform=ax.transAxes)
+                ax.set_title(f"{kernel_length} samples", fontsize=14, color='red', pad=2)
             
         ax.axis('off')  # Remove axis labels and ticks
     
