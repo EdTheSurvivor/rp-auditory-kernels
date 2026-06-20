@@ -1,11 +1,28 @@
-"""
-    Script for plotting and comparing the spectral features (centroid vs bandwidth) of multiple saved sets of kernels in a single graph.
-    Code taken from kernel_learning.jl and mp_utils.jl
-    
-    Usage:
-        julia plot_spectral_features_compare.jl <JLD2_FILE_1> <LABEL_1> [<JLD2_FILE_2> <LABEL_2> ...] [--output=OUTPUT_FILE]
-    Example:
-        julia plot_spectral_features_compare.jl ResultsUNVOICEDREDUCEDHIGHSTOPNEW/epoch_6.jld2 Unvoiced ResultsVOICEDFILTERSTOPNEW/epoch_6.jld2 Voiced jupyter-notebook/kernels/kernels.jld2 Notebook --output=spectral_features_compare.svg
+﻿"""
+Overlays spectral spread vs. bandwidth scatter plots for one or more
+kernel sets on a single log-log axes.
+
+Each JLD2 file is paired with a display label. Kernels are loaded, their spectral
+features computed at fs=16000 Hz, and plotted with a distinct marker/color per set
+(cycling through triangle, circle, square and green, black, red).
+
+Output:
+    A PNG scatter plot saved to output/spectral_features_compare.png by default,
+    or to the path given by --output.
+
+Usage:
+    julia plot_spectral_features_compare.jl <JLD2_1> <LABEL_1> [<JLD2_2> <LABEL_2> ...] [--output=PATH]
+
+Arguments:
+    JLD2_N      Path to a JLD2 file produced by the kernel learning pipeline.
+    LABEL_N     Display label for that kernel set in the plot legend.
+    --output    Output image path (default: output/spectral_features_compare.png).
+
+Example:
+    julia plot_spectral_features_compare.jl \\
+        ResultsUNVOICED/epoch_6.jld2 Unvoiced \\
+        ResultsVOICED/epoch_6.jld2   Voiced \\
+        --output=spectral_features_compare.png
 """
 
 import Pkg
@@ -36,7 +53,7 @@ function get_centroids_and_bandwidths(jld2_path, fs)
 end
 
 function main()
-    output_path = "output/spectral_features_compare.svg"
+    output_path = "output/spectral_features_compare.png"
     fs = 16000
     path_names_args = String[]
 
@@ -59,7 +76,7 @@ function main()
     ytick_vals = [0.05, 0.1, 0.2, 0.5, 1, 2, 4]
 
     p = plot(
-        xlabel="Spectral Centroid (kHz)",
+        xlabel="Spectral Spread (kHz)",
         ylabel="Spectral Bandwidth (kHz)",
         title="Kernel Spectral Features",
         xscale=:log10,
@@ -68,9 +85,13 @@ function main()
         ylims=ylim,
         xticks=(xtick_vals, string.(xtick_vals)),
         yticks=(ytick_vals, string.(ytick_vals)),
-        legend=true,
+        legend=:topleft,
         grid=true,
-        minorgrid=true
+        minorgrid=true,
+        titlefontsize=14,
+        guidefontsize=14,
+        tickfontsize=14,
+        legendfontsize=14,
     )
 
     markers = [:utriangle, :circle, :square]
@@ -91,3 +112,4 @@ function main()
 end
 
 main()
+

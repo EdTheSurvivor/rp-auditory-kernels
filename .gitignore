@@ -5,7 +5,8 @@ training/simple_train_set.tsv
 training/simple_train_set/**
 ResultsNOTUSED
 .vscode
-plot/testoutput
-plot/output
+plot/testoutput*
+plot/output*
 paths
 plot/ESC-50-split**
+ignore

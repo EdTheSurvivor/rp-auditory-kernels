@@ -220,9 +220,11 @@ dependencies = [
     { name = "librosa" },
     { name = "matplotlib" },
     { name = "numpy" },
+    { name = "pandas" },
     { name = "pesq" },
     { name = "scipy" },
     { name = "seaborn" },
+    { name = "soundfile" },
     { name = "torch" },
     { name = "transformers" },
 ]
@@ -236,9 +238,11 @@ requires-dist = [
     { name = "librosa", specifier = ">=0.11.0" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "numpy", specifier = ">=2.4.4" },
+    { name = "pandas", specifier = ">=2.0" },
     { name = "pesq", specifier = ">=0.0.4" },
     { name = "scipy", specifier = ">=1.17.1" },
     { name = "seaborn", specifier = ">=0.13.2" },
+    { name = "soundfile", specifier = ">=0.13" },
     { name = "torch", specifier = ">=2.12.0", index = "https://download.pytorch.org/whl/cu126" },
     { name = "transformers", specifier = ">=4.57.0" },
 ]

@@ -1,15 +1,30 @@
 """
-Script for plotting the SRR against the number of kernels per second. It runs for every wav file in --input_dir,
-and averages the curves. The output gets saved to a png and a tsv. Short time matching pursuit is used.
+Plots average SRR (Signal-to-Residual Ratio) vs. kernels-per-second over a set of wav files.
+
+For each wav file, short-time matching pursuit is run using a kernel dictionary loaded
+from a JLD2 file. The resulting per-file SRR curves are interpolated onto a common grid
+and averaged. Reconstructed wavs and per-file outputs are written to output/<name>/.
+
+Outputs (all under output/):
+    <name>.png   — plot of the averaged SRR curve
+    <name>.tsv   — tab-separated (kernels_per_second, srr) table of the averaged curve
+    <name>/      — reconstructed wav files for each input
+
+Processing is parallelized across all available CPU cores.
 
 Usage:
-    python plot_srr_vs_kernels_per_sec.py <input_dir> <kernels_path> [--output=ssr_vs_kernels_per_sec.png] [--data_output=ssr_vs_kernels_per_sec.tsv]
+    python plot_srr_vs_kernels_per_sec.py <input_dir> <kernels_path> [--name NAME]
+
+Arguments:
+    input_dir      Directory of wav files to reconstruct, or a TSV file with a
+                   'path_wav' column listing absolute wav paths.
+    kernels_path   Path to the JLD2 file containing the kernel dictionary.
+    --name         Base name for all output files (default: ssr_vs_kernels_per_sec).
 """
 
 fs = 16000
 
 import argparse
-import glob
 import os
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed

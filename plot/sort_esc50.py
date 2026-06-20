@@ -1,32 +1,31 @@
 """
-Script for sorting ESC-50 wav files into category sub-folders based the classes and major categories.
-These are taken from the ESC-50 metadata csv (columns: filename,fold,target,category,esc10,src_file,take).
+Script for sorting ESC-50 wav files into category sub-folders.
 
-Files are copied into: <output>/<major_category>/<category>/<filename>
+Reads the ESC-50 metadata CSV (columns: filename, fold, target, category,
+esc10, src_file, take) and copies each wav file into:
 
-where <major_category> is determined by the target number:
-0-9: Animals
-10-19: Natural soundscapes & water sounds
-20-29: Human, non-speech sounds
-30-39: Interior/domestic sounds
-40-49: Exterior/urban noises
+    <output_dir>/<major_category>/<category>/<filename>
+
+where <major_category> is one of three custom buckets assigned per target:
+    vocalization  — animal calls and human vocal sounds (targets 0-9, 20, 26, 28)
+    ambient       — continuous background sounds (targets 7, 10-14, 16-19, 23, 27, ...)
+    transient     — brief, impulsive sounds (targets 15, 21-22, 24-25, 29-34, ...)
+
+See MAJOR_CATEGORIES for the full target-to-bucket mapping.
 
 Usage:
-    python sort_esc50.py <WAV_DIR> <CSV_PATH> <OUTPUT_DIR>
+    python sort_esc50.py <WAV_DIR> <CSV_PATH> [--output_dir OUTPUT_DIR]
+
+Arguments:
+    wav_dir       Directory containing the ESC-50 wav files.
+    csv_path      Path to the ESC-50 metadata CSV.
+    --output_dir  Destination root directory (default: ESC-50-split).
 """
 
 import argparse
 import csv
 import shutil
 from pathlib import Path
-
-# MAJOR_CATEGORIES = {
-#     0: "Animals",
-#     1: "Natural_soundscapes_water_sounds",
-#     2: "Human_non-speech_sounds",
-#     3: "Interior_domestic_sounds",
-#     4: "Exterior_urban_noises",
-# }
 
 MAJOR_CATEGORIES = {
     0: "vocalization",   # Dog

@@ -1,3 +1,0 @@
-py .\merge_srr_kernels_tsv.py --output esc_vocalization_reconstruct_lim output/ESC-50/voiced_on_vocalization.tsv Voiced output/ESC-50/unvoiced_on_vocalization.tsv Unvoiced output/ESC-50/normal_on_vocalization.tsv Full-Utterance
-py .\merge_srr_kernels_tsv.py --output esc_transient_reconstruct_lim output/ESC-50/voiced_on_transient.tsv Voiced output/ESC-50/unvoiced_on_transient.tsv Unvoiced output/ESC-50/normal_on_transient.tsv Full-Utterance
-py .\merge_srr_kernels_tsv.py --output esc_ambient_reconstruct_lim output/ESC-50/voiced_on_ambient.tsv Voiced output/ESC-50/unvoiced_on_ambient.tsv Unvoiced output/ESC-50/normal_on_ambient.tsv Full-Utterance
