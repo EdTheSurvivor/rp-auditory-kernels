@@ -1,18 +1,33 @@
 """
-Split TIMIT dataset into voiced and unvoiced phoneme segments.
+Splits a TIMIT directory into per-phoneme wav segments, sorted into voiced/ and
+unvoiced/ sub-folders. Silence and non-speech events (pau, epi, h#) are skipped.
 
-Usage:
-    python split.py -i /path/to/TIMIT -o ./timit_split
+Two splitting modes are available:
+
+    Default  — one wav per phoneme entry in the .PHN file. Segments shorter than
+               MIN_SAMPLES (3100) are zero-padded to that length.
+
+    Chained (-c) — consecutive phonemes of the same voicing class are merged into
+               a single segment. Silence between same-class phonemes is absorbed;
+               silence at the boundary starts a new segment.
 
 Output structure:
-    timit_split/
+    <output_dir>/
         voiced/
-            b_sa1_0_3200.wav
-            d_si1234_1600_4800.wav
-            ...
+            <phoneme>_<SPEAKER>_<SENTENCE>_<start>_<end>.wav
         unvoiced/
-            p_sa1_0_2400.wav
-            ...
+            <phoneme>_<SPEAKER>_<SENTENCE>_<start>_<end>.wav
+
+In chained mode, <phoneme> is an underscore-joined sequence of all merged phonemes
+(e.g. b_d_g). These names are parsed by generate_tsv.py and compute_phoneme_error_rate.py.
+
+Usage:
+    python split.py -i <timit_dir> [-o <output_dir>] [-c]
+
+Arguments:
+    -i   Path to the TIMIT directory to split (e.g. TRAIN/ or TEST/).
+    -o   Output directory (default: ./timit_split).
+    -c   Enable chained mode.
 """
 
 import argparse

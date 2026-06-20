@@ -1,11 +1,37 @@
 """
-Script for computing the phoneme error rate for files. It takes an input dir to find wav files in
-and finds the corresponding .phn file if the timit flag is true.
-Else it takes an input tsv created from split_timit/generate_tsv with the wav file names and takes
-the phonetics from the wav file name: {phoneme}_{speaker}_{stem}_{start}_{end}.wav. It saves the PER to a tsv.
+Computes Phoneme Error Rate (PER) for all wav files in a directory using a
+Wav2Vec2 phoneme recognition model, then saves per-file and average results to a TSV.
+
+References are obtained in one of three modes, selected by the arguments:
+    1. TIMIT mode (--timit): each wav has a matching .phn/.PHN file in the same directory.
+    2. PHN lookup mode (--timit_phn_path): wav files are reconstructed segments
+       named {speaker}_{sample}_rec.WAV; the matching .phn is found by searching
+       the provided TIMIT-style directory tree for the original sample name.
+    3. Filename mode (default): wav files are named
+       {category}_{phn_phn_...}_{speaker}_{stem}_{start}_{end}_rec.wav,
+       with the phoneme sequence encoded directly in the file name
+       (as produced by split_timit/generate_tsv.py).
+
+All references are reduced to the standard 39-phoneme set (Lee & Hon 1989) before
+scoring. PER is also reported separately for voiced and unvoiced subsets.
+Inference runs in batches of 16 on GPU if available.
+
+Output:
+    output/<name>.tsv  — tab-separated results with columns:
+                         identifier, per, voiced_per, unvoiced_per, reference, hypothesis
+                         plus a final 'average' row.
 
 Usage:
-    python compute_phoneme_error_rate.py <input_dir_tsv> [--output=phoneme_error_rate.tsv] [--timit]
+    python compute_phoneme_error_rate.py <input_dir> [--output NAME]
+                                         [--timit_phn_path PATH] [--timit]
+
+Arguments:
+    input_dir          Directory containing wav files to evaluate.
+    --output           Base name for the output TSV (default: phoneme_error_rate).
+    --timit_phn_path   Path to a TIMIT-style directory tree with .phn files.
+                       Required for PHN lookup mode; omit for filename mode.
+    --timit            Enable TIMIT mode: expect standard {sample}.WAV names with
+                       sibling .phn files.
 """
 
 import argparse
@@ -191,7 +217,6 @@ def main():
             unvoiced_hypothesis =  filter_phonemes(hypothesis, UNVOICED)
             unvoiced_per = phoneme_error_rate(unvoiced_reference, unvoiced_hypothesis)
 
-            # print(f"ref: {reference}\ntrans:{hypothesis}")
             print(f"[{i + 1}/{len(wav_paths)}] PER for {wav_path}: {per:.2%}")
 
             speaker = ''

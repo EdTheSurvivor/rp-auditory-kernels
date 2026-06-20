@@ -1,3 +1,29 @@
+"""
+Generates a TSV listing wav file paths from a directory of split TIMIT segments
+(as produced by split.py), for use as input to downstream scripts.
+
+Output:
+    train_paths.tsv  — single-column TSV with header 'path_wav', written to the
+                       current working directory.
+
+With --reduce, the path list is filtered before writing:
+    1. SA (dialect) sentences are dropped — they over-represent certain phonemes.
+    2. Segments shorter than --min_duration samples are removed.
+    3. For SI/SX sentences, only the longest segment per speaker+sentence is kept.
+
+Expected wav file name format (from split.py):
+    <phonemes>_<SPEAKERID>_<SENTENCEID>_<start>_<end>.wav
+
+Usage:
+    python generate_tsv.py <input_dir> [--reduce] [--min_duration N]
+
+Arguments:
+    input_dir       Directory containing the split wav files.
+    --reduce        Apply the three-step reduction described above.
+    --min_duration  Minimum segment length in samples to keep (default: 500;
+                    suggested 200 for unvoiced segments).
+"""
+
 import os
 import re
 import argparse

@@ -1,9 +1,21 @@
 """
-Script for plotting multiple SRR vs kernels/second curves (as produced by
-plot_srr_vs_kernels_per_sec.py) in a single graph.
+Overlays multiple SRR vs. kernels/second curves on a single rate-fidelity plot.
+
+Each TSV (as produced by plot_srr_vs_kernels_per_sec.py) must have a header row
+with columns 'kernels_per_second' and 'srr'. Each file is paired with a display
+label and plotted with a distinct color/marker (cycling through green, black, red
+and triangle, circle, square).
+
+Output:
+    output/<name>.png  — the combined plot at 600 dpi
 
 Usage:
-    python merge_srr_kernels_tsv.py <TSV_1> <LABEL_1> [<TSV_2> <LABEL_2> ...] [--output=merged_srr_vs_kernels_per_sec]
+    python merge_srr_kernels_tsv.py <TSV_1> <LABEL_1> [<TSV_2> <LABEL_2> ...] [--output NAME]
+
+Arguments:
+    TSV_N      Path to a TSV file containing a kernels_per_second/srr curve.
+    LABEL_N    Display label for that curve in the plot legend.
+    --output   Base name for the output file (default: merged_srr_vs_kernels_per_sec).
 """
 
 import argparse

@@ -1,14 +1,21 @@
 """
-Script for combining multiple phoneme error rate tsv files as produced by
-compute_phoneme_error_rate.py into a single tsv.
+Merges multiple PER TSV files (as produced by compute_phoneme_error_rate.py) into one.
 
-Rows with the same speaker-sample are merged; the speaker-sample and
-reference columns are kept once, while the per, voiced_per, unvoiced_per and hypothesis columns are
-taken from each input file and renamed to <file_stem>_per, <file_stem>_voiced_per, <file_stem>_unvoiced_per and
-<file_stem>_hypothesis.
+Rows with the same identifier (first column) are merged: the identifier and reference
+are kept once, while per, voiced_per, unvoiced_per, and hypothesis are carried over
+from each input file and prefixed with that file's stem:
+
+    <stem>_per, <stem>_voiced_per, <stem>_unvoiced_per, <stem>_hypothesis
+
+Output:
+    output/<name>.tsv  — merged TSV preserving input row order.
 
 Usage:
-    python combine_per_tsv.py <TSV_1> [<TSV_2> ...] [--output=combined_per]
+    python combine_per_tsv.py <TSV_1> [<TSV_2> ...] [--output NAME]
+
+Arguments:
+    tsvs      One or more PER TSV files to merge.
+    --output  Base name for the output file (default: combined_per).
 """
 
 import argparse
