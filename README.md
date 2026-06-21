@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/1262948901.svg)](https://doi.org/10.5281/zenodo.20786161)
 # Auditory Kernels
 
 This repository has some code for training the kernels (in Julia) and for computing the encodings (Python/Julia). There is also a Jupyter-notebook which hopefully helps get an idea of the Python code, and what it means to encode and decode the speech signals. As well there are scripts included to split TIMIT, encode sounds and generate plots.
