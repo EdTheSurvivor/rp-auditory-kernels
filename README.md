@@ -5,6 +5,35 @@ This repository contains code for training auditory kernels (in Julia) and for c
 
 This repository is part of the TU Delft CSE3000 Research Project: Efficient Auditory Coding in Speech Categorization, by Edwin van der Heijden. `ResultsFULLUTTERANCE, ResultsUNVOICED and ResultsVOICED` contain the trained kernel sets used in the research. The parameters used are included in `train_kernels.sh` under each Results folder.
 
+## How to Cite
+
+If you use this code, please cite it as follows.
+
+### BibTeX
+```bibtex
+@software{van_der_heijden_2026_20786162,
+  author       = {van der Heijden, Edwin and
+                  de Groot, Dimme},
+  title        = {Auditory Kernels Codebase},
+  month        = jun,
+  year         = 2026,
+  publisher    = {Zenodo},
+  version      = {v1.0.0},
+  doi          = {10.5281/zenodo.20786162},
+  url          = {https://doi.org/10.5281/zenodo.20786162},
+}
+```
+### APA
+```
+van der Heijden, E., & de Groot, D. (2026). Auditory Kernels Codebase (v1.0.0). Zenodo. https://doi.org/10.5281/zenodo.20786162
+```
+### IEEE
+```
+E. van der Heijden and D. de Groot, “Auditory Kernels Codebase”. Zenodo, Jun. 21, 2026. doi: 10.5281/zenodo.20786162.
+```
+
+
+
 ## Getting started with the code
 
 - It is recommended to start by going through `jupyter-notebook/getting_started.ipynb`. This jupyter-notebook briefly explains matching pursuit and shows you how to apply it to a speech signal. After going through this notebook, you should be familiar with the basics of encoding/decoding the speech signals using the kernels, and how to use the basics of `utils_python/matching_pursuit.py`.
