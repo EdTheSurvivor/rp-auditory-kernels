@@ -1,7 +1,7 @@
 [![DOI](https://zenodo.org/badge/1262948901.svg)](https://doi.org/10.5281/zenodo.20786161)
 # Auditory Kernels
 
-This repository has some code for training the kernels (in Julia) and for computing the encodings (Python/Julia). There is also a Jupyter-notebook which hopefully helps get an idea of the Python code, and what it means to encode and decode the speech signals. As well there are scripts included to split TIMIT, encode sounds and generate plots.
+This repository contains code for training auditory kernels (in Julia) and for computing the encodings (Python/Julia). There is also a Jupyter-notebook which hopefully helps get an idea of the Python code, and what it means to encode and decode the speech signals. As well there are scripts included to split TIMIT, encode sounds and generate plots.
 
 This repository is part of the TU Delft CSE3000 Research Project: Efficient Auditory Coding in Speech Categorization, by Edwin van der Heijden. `ResultsFULLUTTERANCE, ResultsUNVOICED and ResultsVOICED` contain the trained kernel sets used in the research. The parameters used are included in `train_kernels.sh` under each Results folder.
 
