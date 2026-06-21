@@ -1,0 +1,14 @@
+julia --threads 8 kernel_learning.jl VOICED <timit_voiced_split>.tsv \
+  --logpath training_log.tsv \
+  --mp_max_iter 500 \
+  --mp_stop_cond 0.12 \
+  --mp_rand_stop true \
+  --mp_stop_min 0.10 \
+  --mp_stop_max 0.15 \
+  --apply_normalization true \
+  --filter_length 256 \
+  --filter_f_low 60 \
+  --filter_f_high 5000 \
+  --init_length 128 \
+  --init_min_length 96 \
+  --min_length 96 \
