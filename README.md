@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/1262948901.svg)](https://doi.org/10.5281/zenodo.20786161)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20817920.svg)](https://doi.org/10.5281/zenodo.20817920)
 # Auditory Kernels
 
 This repository contains code for training auditory kernels (in Julia) and for computing the encodings (Python/Julia). There is also a Jupyter-notebook which hopefully helps get an idea of the Python code, and what it means to encode and decode the speech signals. As well there are scripts included to split TIMIT, encode sounds and generate plots.
@@ -11,25 +11,25 @@ If you use this code, please cite it as follows.
 
 ### BibTeX
 ```bibtex
-@software{van_der_heijden_2026_20786162,
+@software{van_der_heijden_2026_20817920,
   author       = {van der Heijden, Edwin and
                   de Groot, Dimme},
   title        = {Auditory Kernels Codebase},
   month        = jun,
   year         = 2026,
   publisher    = {Zenodo},
-  version      = {v1.0.0},
-  doi          = {10.5281/zenodo.20786162},
-  url          = {https://doi.org/10.5281/zenodo.20786162},
+  version      = {v1.1.0},
+  doi          = {10.5281/zenodo.20817920},
+  url          = {https://doi.org/10.5281/zenodo.20817920},
 }
 ```
 ### APA
 ```
-van der Heijden, E., & de Groot, D. (2026). Auditory Kernels Codebase (v1.0.0). Zenodo. https://doi.org/10.5281/zenodo.20786162
+van der Heijden, E., & de Groot, D. (2026). Auditory Kernels Codebase (v1.1.0). Zenodo. https://doi.org/10.5281/zenodo.20817920
 ```
 ### IEEE
 ```
-E. van der Heijden and D. de Groot, “Auditory Kernels Codebase”. Zenodo, Jun. 21, 2026. doi: 10.5281/zenodo.20786162.
+E. van der Heijden and D. de Groot, “Auditory Kernels Codebase”. Zenodo, Jun. 23, 2026. doi: 10.5281/zenodo.20817920.
 ```
 
 
